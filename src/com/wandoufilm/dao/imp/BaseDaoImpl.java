@@ -8,57 +8,17 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.wandoufilm.dao.BaseDao;
-import com.wandoufilm.model.Admin;
-import com.wandoufilm.model.Blog;
-import com.wandoufilm.model.Model;
-import com.wandoufilm.model.Post;
-import com.wandoufilm.service.BaseService;
 import com.wandoufilm.util.Dbcon;
 import com.wandoufilm.util.ReflectMatch;
 
 public class BaseDaoImpl implements BaseDao {
 	public Statement st;
-
-	public static void main(String[] args) throws SQLException, IntrospectionException {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:ss:mm");
-		Post post = new Post();
-		post.setContent("324234");
-		post.setCreateTime(sdf.format(new Date()));
-		post.setImg("32423");
-		post.setTitle("4324");
-
-		Model model = new Model();
-		model.setName("4234");
-		model.setPid(1);
-		model.setTime(sdf.format(new Date(0)));
-		model.setUrl("3243");
-
-		Blog blog = new Blog();
-		blog.setCar_id(4324);
-		blog.setUser_id(1);
-
-		BaseService bs = BaseService.getInstance();
-		// bs.add(post);
-		// bs.add(model);
-		// bs.add(blog);
-		Admin admin = new Admin();
-		admin.setRole_id(1);
-		admin.setNick_name("324234");
-		admin.setLast_time(new Timestamp(new Date().getTime()));
-		// bs.add(admin);
-
-		// bs.findById(model, 2);
-		bs.findAll(new Blog());
-	}
 
 	@Override
 	public int save(Object object) throws SQLException {
@@ -79,17 +39,16 @@ public class BaseDaoImpl implements BaseDao {
 				String type = fields[i].getType().getName();
 
 				if (i == fields.length - 1) {
-					if (value != null) {
-						tableName += key + ") ";
-						if ("java.lang.String".equals(type) || "java.util.Date".equals(type)
-								|| "java.sql.Timestamp".equals(type)) {
-							values += "'" + value + "')";
-						} else {
+					tableName += key + ") ";
+					if ("java.lang.String".equals(type) || "java.util.Date".equals(type)
+							|| "java.sql.Timestamp".equals(type)) {
+						if (value == null) {
 							values += value + ")";
+						} else {
+							values += "'" + value + "')";
 						}
 					} else {
-						tableName += ") ";
-						values += ")";
+						values += value + ")";
 					}
 				} else if (i != 0 && value != null) {
 					tableName += fields[i].getName() + ",";
@@ -121,13 +80,17 @@ public class BaseDaoImpl implements BaseDao {
 	}
 
 	@Override
-	public int delete(Object clazz, int id) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int delete(Object object, int id) throws SQLException {
+		Class clazz = object.getClass();
+		st = Dbcon.getConnection();
+		String table = clazz.getSimpleName();
+		String sql = "DELETE FROM " + table.toLowerCase() + " WHERE id=" + id;
+		int rs = st.executeUpdate(sql);
+		return rs;
 	}
 
 	@Override
-	public int update(Object clazz, int id) {
+	public int update(Object object, int id) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
