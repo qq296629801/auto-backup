@@ -1,6 +1,7 @@
 package com.wandoufilm.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public interface BaseDao {
 
@@ -12,4 +13,5 @@ public interface BaseDao {
 
 	public Object findById(Object object, int id) throws SQLException;
 
+	public List<Object> findAll(Object object) throws SQLException;
 }

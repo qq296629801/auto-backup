@@ -1,7 +1,7 @@
-package cm.ymsys.service;
+package com.wandoufilm.service;
 
-import java.beans.IntrospectionException;
 import java.sql.SQLException;
+import java.util.List;
 
 import com.wandoufilm.dao.imp.BaseDaoImpl;
 
@@ -14,12 +14,16 @@ public class BaseService {
 
 	private BaseDaoImpl dao = new BaseDaoImpl();
 
-	public void add(Object object) throws SQLException, IntrospectionException {
+	public void add(Object object) throws SQLException {
 		dao.save(object);
 	}
 
 	public Object findById(Object object, int id) throws SQLException {
 		return dao.findById(object, id);
+	}
+
+	public List<Object> findAll(Object object) throws SQLException {
+		return dao.findAll(object);
 	}
 
 }

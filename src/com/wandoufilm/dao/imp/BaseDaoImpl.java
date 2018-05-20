@@ -10,8 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.wandoufilm.dao.BaseDao;
@@ -19,10 +21,9 @@ import com.wandoufilm.model.Admin;
 import com.wandoufilm.model.Blog;
 import com.wandoufilm.model.Model;
 import com.wandoufilm.model.Post;
+import com.wandoufilm.service.BaseService;
 import com.wandoufilm.util.Dbcon;
 import com.wandoufilm.util.ReflectMatch;
-
-import cm.ymsys.service.BaseService;
 
 public class BaseDaoImpl implements BaseDao {
 	public Statement st;
@@ -53,9 +54,10 @@ public class BaseDaoImpl implements BaseDao {
 		admin.setRole_id(1);
 		admin.setNick_name("324234");
 		admin.setLast_time(new Timestamp(new Date().getTime()));
-		bs.add(admin);
+		// bs.add(admin);
 
-		Post postOld = (Post) bs.findById(post, 11);
+		// bs.findById(model, 2);
+		bs.findAll(new Blog());
 	}
 
 	@Override
@@ -134,7 +136,7 @@ public class BaseDaoImpl implements BaseDao {
 	public Object findById(Object object, int id) throws SQLException {
 		st = Dbcon.getConnection();
 		Class clazz = object.getClass();
-		String sql = "select * from post where id=" + id;
+		String sql = "select * from " + clazz.getSimpleName().toLowerCase() + " where id=" + id;
 		ResultSet rs;
 		rs = st.executeQuery(sql);
 		if (rs.next()) {
@@ -143,12 +145,35 @@ public class BaseDaoImpl implements BaseDao {
 			Field[] fields = clazz.getDeclaredFields();
 			for (int i = 0; i < fields.length; i++) {
 				String key = fields[i].getName();
-				System.out.println(key + " " + rs.getObject(key));
 				map.put(key, rs.getObject(key));
+				System.out.println(key + " " + rs.getObject(key));
 			}
 			reflectMatch.setValue(object, map);
 		}
 		return object;
+	}
+
+	@Override
+	public List<Object> findAll(Object object) throws SQLException {
+		List<Object> list = new ArrayList<Object>();
+		st = Dbcon.getConnection();
+		Class clazz = object.getClass();
+		String sql = "select * from " + clazz.getSimpleName().toLowerCase() + "";
+		ResultSet rs;
+		rs = st.executeQuery(sql);
+		while (rs.next()) {
+			ReflectMatch reflectMatch = new ReflectMatch();
+			Map map = new HashMap();
+			Field[] fields = clazz.getDeclaredFields();
+			for (int i = 0; i < fields.length; i++) {
+				String key = fields[i].getName();
+				map.put(key, rs.getObject(key));
+				System.out.println(key + " " + rs.getObject(key));
+			}
+			reflectMatch.setValue(object, map);
+			list.add(object);
+		}
+		return list;
 	}
 
 }
