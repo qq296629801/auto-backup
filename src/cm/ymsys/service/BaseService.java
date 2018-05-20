@@ -18,4 +18,8 @@ public class BaseService {
 		dao.save(object);
 	}
 
+	public Object findById(Object object, int id) throws SQLException {
+		return dao.findById(object, id);
+	}
+
 }

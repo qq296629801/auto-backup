@@ -23,7 +23,7 @@ public class GeneratorTool {
 	public static final String name = "com.mysql.jdbc.Driver";
 	public static final String user = "qdm19334814";
 	public static final String password = "296629801";
-	public static final String tableName = "blog";
+	public static final String tableName = "admin";
 	public static final String dataBase = "qdm19334814_db";
 	public static final String filePath = "";
 	public static boolean dataFlag = true;

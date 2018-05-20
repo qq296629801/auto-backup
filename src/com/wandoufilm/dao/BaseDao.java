@@ -10,6 +10,6 @@ public interface BaseDao {
 
 	public int update(Object object, int id) throws SQLException;
 
-	public Object findById(int id) throws SQLException;
+	public Object findById(Object object, int id) throws SQLException;
 
 }

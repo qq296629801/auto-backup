@@ -5,16 +5,22 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.wandoufilm.dao.BaseDao;
+import com.wandoufilm.model.Admin;
 import com.wandoufilm.model.Blog;
 import com.wandoufilm.model.Model;
 import com.wandoufilm.model.Post;
 import com.wandoufilm.util.Dbcon;
+import com.wandoufilm.util.ReflectMatch;
 
 import cm.ymsys.service.BaseService;
 
@@ -40,9 +46,16 @@ public class BaseDaoImpl implements BaseDao {
 		blog.setUser_id(1);
 
 		BaseService bs = BaseService.getInstance();
-		bs.add(post);
-		bs.add(model);
-		bs.add(blog);
+		// bs.add(post);
+		// bs.add(model);
+		// bs.add(blog);
+		Admin admin = new Admin();
+		admin.setRole_id(1);
+		admin.setNick_name("324234");
+		admin.setLast_time(new Timestamp(new Date().getTime()));
+		bs.add(admin);
+
+		Post postOld = (Post) bs.findById(post, 11);
 	}
 
 	@Override
@@ -61,17 +74,28 @@ public class BaseDaoImpl implements BaseDao {
 				PropertyDescriptor descriptor = new PropertyDescriptor(key, clazz);
 				Method method = descriptor.getReadMethod();
 				Object value = method.invoke(object);
-				value = value == null ? "" : value;
+				String type = fields[i].getType().getName();
+
 				if (i == fields.length - 1) {
-					tableName += key + ") ";
-					values += "'" + value + "')";
-				} else if (i != 0) {
-					tableName += fields[i].getName() + ",";
-					if (fields[i].getType().getSimpleName().equals("int")
-							|| fields[i].getType().getSimpleName().equals("double")) {
-						values += value + ",";
+					if (value != null) {
+						tableName += key + ") ";
+						if ("java.lang.String".equals(type) || "java.util.Date".equals(type)
+								|| "java.sql.Timestamp".equals(type)) {
+							values += "'" + value + "')";
+						} else {
+							values += value + ")";
+						}
 					} else {
+						tableName += ") ";
+						values += ")";
+					}
+				} else if (i != 0 && value != null) {
+					tableName += fields[i].getName() + ",";
+					if ("java.lang.String".equals(type) || "java.util.Date".equals(type)
+							|| "java.sql.Timestamp".equals(type)) {
 						values += "'" + value + "',";
+					} else {
+						values += value + ",";
 					}
 
 				}
@@ -83,16 +107,12 @@ public class BaseDaoImpl implements BaseDao {
 			Dbcon.close();
 			return rs;
 		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
@@ -111,9 +131,24 @@ public class BaseDaoImpl implements BaseDao {
 	}
 
 	@Override
-	public Object findById(int id) {
-		// TODO Auto-generated method stub
-		return null;
+	public Object findById(Object object, int id) throws SQLException {
+		st = Dbcon.getConnection();
+		Class clazz = object.getClass();
+		String sql = "select * from post where id=" + id;
+		ResultSet rs;
+		rs = st.executeQuery(sql);
+		if (rs.next()) {
+			ReflectMatch reflectMatch = new ReflectMatch();
+			Map map = new HashMap();
+			Field[] fields = clazz.getDeclaredFields();
+			for (int i = 0; i < fields.length; i++) {
+				String key = fields[i].getName();
+				System.out.println(key + " " + rs.getObject(key));
+				map.put(key, rs.getObject(key));
+			}
+			reflectMatch.setValue(object, map);
+		}
+		return object;
 	}
 
 }
