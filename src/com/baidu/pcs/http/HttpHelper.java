@@ -1,7 +1,6 @@
 package com.baidu.pcs.http;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,9 +28,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
-import com.baidu.pcs.PcsUploadResult;
-import com.baidubce.services.bos.model.SetBucketAclRequest;
 
 public class HttpHelper {
 	private static final String TAG = "JavaPCS";
@@ -72,38 +68,39 @@ public class HttpHelper {
 	}
 
 	public String doGet(String url) throws RestHttpException, HttpException {
-		logger.debug("doget " + url);
+		// logger.debug("doget " + url);
 		final HttpGet request = new HttpGet(url);
 		return execute(request);
 	}
 
 	public void doGetToFile(String url, String localFilePath) throws RestHttpException, HttpException {
-	logger.debug("doget " + url);
+		logger.debug("doget " + url);
 		final HttpGet request = new HttpGet(url);
 		final HttpResponse resp;
 		try {
 			resp = newHttpClient().execute(request);
 			if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-			FileOutputStream out = new FileOutputStream(localFilePath);
-			resp.getEntity().writeTo(out);
-			out.close();
-				
-				return ;
-		} else {
+				FileOutputStream out = new FileOutputStream(localFilePath);
+				resp.getEntity().writeTo(out);
+				out.close();
+
+				return;
+			} else {
 				logger.error("http errorcode " + resp.getStatusLine().getStatusCode());
 				final String response = EntityUtils.toString(resp.getEntity());
 				throw new RestHttpException(resp.getStatusLine().getStatusCode(), response);
-		}
+			}
 		} catch (final IOException e) {
 			logger.error("Exception in http request ");
 			e.printStackTrace();
 			throw new HttpException("IOException " + e.toString());
 		}
 	}
-	
+
 	/**
 	 * post application/x-www-form-urlencoded
-	 * @throws HttpException 
+	 * 
+	 * @throws HttpException
 	 */
 	public String doPost(String url, List<NameValuePair> params) throws RestHttpException, HttpException {
 		logger.debug("doPost " + url);
@@ -123,7 +120,8 @@ public class HttpHelper {
 		return execute(request);
 	}
 
-	public String doPostMultipart(String url, String filePath, List<NameValuePair> params) throws RestHttpException, HttpException {
+	public String doPostMultipart(String url, String filePath, List<NameValuePair> params)
+			throws RestHttpException, HttpException {
 		logger.debug("doPostMultipart" + url);
 		if (params == null)
 			params = EMPTY_PARAMS;
@@ -142,15 +140,17 @@ public class HttpHelper {
 
 		return execute(request);
 	}
-	public String doPostMultipartInpusteam(String url, InputStream in,String fileName, List<NameValuePair> params) throws RestHttpException, HttpException, IOException {
+
+	public String doPostMultipartInpusteam(String url, InputStream in, String fileName, List<NameValuePair> params)
+			throws RestHttpException, HttpException, IOException {
 		logger.debug("doPostMultipart" + url);
 		if (params == null)
 			params = EMPTY_PARAMS;
 		HttpPost request = new HttpPost(url);
 		MultipartEntity reqEntity = new MultipartEntity();
-		
-		ContentBody is =  new InputStreamBody(in,fileName);
-		reqEntity.addPart("uploadedfile",is);
+
+		ContentBody is = new InputStreamBody(in, fileName);
+		reqEntity.addPart("uploadedfile", is);
 		for (NameValuePair kv : params) {
 			multipartAddKV(reqEntity, kv.getName(), kv.getValue());
 		}

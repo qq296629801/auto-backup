@@ -2,10 +2,7 @@ package com.baidu.pcs;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -40,29 +37,44 @@ public class PcsClient {
 	public static final String ORDER_DESC = "desc";
 	public static final String ORDER_SC = "sc";
 
-	private String accessToken = "";
+	public static final String client_id = "ZQT9cHv758TzQqBSrTtMESRI";
+	public static final String client_secret = "MVz18SI2seyCucSRBAweuvPz61eaUsFP";
 
+	private String accessToken = "26.18c794e003651f01d7241c2720af7f05.2592000.1529419563.3442166296-1866274";
+	// 一个月
+	private String refreToken = "27.921e43d1f4d5efa978b281e47f18a334.315360000.1842187563.3442166296-1866274";
+	// 十年
 	private String appRoot = "";
 	private HttpHelper httpHelper = new HttpHelper();
 
 	public PcsClient() {
+	}
 
+	public static void main(String[] args) throws RestHttpException, HttpException, ParseException, PcsException {
+		PcsClient pcs = new PcsClient();
+		System.out.println(pcs.quota().toString());
+		String remote = "/apps/tms/file/res";
+		List<PcsFileEntry> list = pcs.list(remote);
+		for (PcsFileEntry file : list) {
+			if (file.isDir() == false) {
+				System.out.println("C:\\Users\\Administrator\\Downloads\\" + file.getServerFilename());
+				System.out.println(remote + file.getPath());
+				pcs.downloadToFile(file.getPath(), "C:\\Users\\Administrator\\Downloads\\" + file.getServerFilename());
+			}
+		}
 	}
 
 	public void getToken() throws RestHttpException, HttpException, ParseException {
-		Date date = new Date();// 当前日期
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// 格式化对象
-		Calendar calendar = Calendar.getInstance();// 日历对象
-		calendar.setTime(date);// 设置当前日期
-		Date desyTime = null;
-		if (date.getTime() > desyTime.getTime()) {
-			String refresh_token = "";
-			String url = "https://openapi.baidu.com/oauth/2.0/token?grant_type=refresh_token&refresh_token="
-					+ refresh_token
-					+ "&client_id=ZQT9cHv758TzQqBSrTtMESRI&client_secret=V5zaSDtphpB8gM5eUDIyrwkDXZqkHdeU&scope=netdisk";
-			String str = httpHelper.doGet(url);
-			JSONObject obj = (JSONObject) new JSONParser().parse(str);
-		}
+		// 设备获取方式 一个月token 十年refetoken
+		String aaa = "";
+		String url = "https://openapi.baidu.com/oauth/2.0/token?grant_type=device_token&code=7ebaa6ebae9dfa633cc21483f57e5d8e&client_id=ZQT9cHv758TzQqBSrTtMESRI&client_secret=MVz18SI2seyCucSRBAweuvPz61eaUsFP";
+		// String aa =
+		// "https://openapi.baidu.com/oauth/2.0/token?grant_type=refresh_token&refresh_token="
+		// + refreToken
+		// + "&client_id=" + client_id + "&client_secret=" + client_secret + "";
+		String str = httpHelper.doGet(url);
+		System.out.println(str);
+		JSONObject obj = (JSONObject) new JSONParser().parse(str);
 	}
 
 	public PcsUploadResult uploadFile(String localPath, String remoteDir, String remoteName) throws PcsException {

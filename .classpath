@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="src/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="src/json_simple-1.1.jar"/>
 	<classpathentry kind="lib" path="src/mysql-connector-java-5.1.24-bin.jar"/>
+	<classpathentry kind="lib" path="src/commons-logging.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
